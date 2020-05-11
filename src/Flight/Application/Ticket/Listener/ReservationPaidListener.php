@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Flight\Application\Ticket\Listener;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Flight\Application\Ticket\Purchase;
 use Flight\Model\Reservation\Event\Paid;
 use Symfony\Component\Lock\LockFactory;
@@ -15,11 +14,10 @@ class ReservationPaidListener implements MessageHandlerInterface
     private MessageBusInterface $commandBus;
     private LockFactory $lockFactory;
 
-    public function __construct(EntityManagerInterface $em, MessageBusInterface $commandBus, LockFactory $lockFactory)
+    public function __construct(MessageBusInterface $commandBus, LockFactory $lockFactory)
     {
         $this->commandBus = $commandBus;
         $this->lockFactory = $lockFactory;
-        $this->em = $em;
     }
 
     public function __invoke(Paid $event)
@@ -28,15 +26,14 @@ class ReservationPaidListener implements MessageHandlerInterface
         $command->seat = $event->seat;
         $command->customerId = $event->customerId;
         $command->flightId = $event->flightId;
-        $command->firstName = $event->passenger->firstName();
-        $command->lastName = $event->passenger->lastName();
-        $command->email = $event->passenger->email()->address();
+        $command->firstName = $event->firstName;
+        $command->lastName = $event->lastName;
+        $command->email = $event->email;
         $command->fromReservation = true;
 
         $lock = $this->lockFactory->createLock($command->flightId . $command->seat);
         if ($lock->acquire()) {
             $this->commandBus->dispatch($command);
-//            $this->em->flush();
             $lock->release();
         }
     }

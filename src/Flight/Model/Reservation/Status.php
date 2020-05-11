@@ -45,7 +45,7 @@ class Status
 
     public function pay()
     {
-        if ($this->isCancelled() || $this->isPaid()) {
+        if (!$this->isReserved()) {
             throw new \LogicException('Cant pay this reservation');
         }
         $this->status = self::PAID;

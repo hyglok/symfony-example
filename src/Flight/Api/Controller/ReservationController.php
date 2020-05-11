@@ -46,7 +46,6 @@ class ReservationController
         if (count($errors) > 0) {
             return Fail::fromValidation($errors);
         }
-
         $lock = $this->lockFactory->createLock($command->flightId . $command->seat);
         if ($lock->acquire()) {
             $this->commandBus->dispatch($command);

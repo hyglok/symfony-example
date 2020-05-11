@@ -98,6 +98,14 @@ class Reservation extends AggregateRoot
             throw new \LogicException("Tickets sale for this flight is closed");
         }
         $this->status->pay();
-        $this->addEvent(new Paid($this->id, $this->seat , $this->customerId, $this->flight->getId(), $this->passenger));
+        $this->addEvent(new Paid(
+            $this->id,
+            $this->seat,
+            $this->customerId,
+            $this->flight->getId(),
+            $this->passenger->firstName(),
+            $this->passenger->lastName(),
+            $this->passenger->email()->address()
+        ));
     }
 }

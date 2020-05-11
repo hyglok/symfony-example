@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Flight\Model\Reservation\Event;
 
-use Flight\Model\Passenger;
 use Lib\Model\Event;
 
 final class Paid implements Event
@@ -12,20 +11,26 @@ final class Paid implements Event
     public string $reservationId;
     public string $customerId;
     public string $flightId;
-    public Passenger $passenger;
+    public string $firstName;
+    public string $lastName;
+    public string $email;
 
     public function __construct(
         string $reservationId,
         int $seat,
         string $customerId,
         string $flightId,
-        Passenger $passenger
+        string $firstName,
+        string $lastName,
+        string $email
     )
     {
         $this->reservationId = $reservationId;
         $this->flightId = $flightId;
         $this->seat = $seat;
         $this->customerId = $customerId;
-        $this->passenger = $passenger;
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->email = $email;
     }
 }
