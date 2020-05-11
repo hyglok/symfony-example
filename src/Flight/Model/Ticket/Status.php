@@ -24,9 +24,7 @@ class Status
      */
     private function __construct(string $status)
     {
-        if (!in_array($status, self::getStatuses(), true)) {
-            throw new \LogicException('Unknown status');
-        }
+        if (!in_array($status, self::getStatuses(), true)) throw new \LogicException('Unknown status');
         $this->status = $status;
     }
 
@@ -37,10 +35,14 @@ class Status
 
     public function refund()
     {
-        if (!($this->isPurchased() || $this->isCancelled())) {
-            throw new \LogicException('Cant refund');
-        }
+        if (!($this->isPurchased() || $this->isCancelled())) throw new \LogicException('Cant refund');
         $this->status = self::REFUNDED;
+    }
+
+    public function cancel()
+    {
+        if (!$this->isPurchased()) throw new \LogicException('Cant cancel');
+        $this->status = self::CANCELLED;
     }
 
     /**

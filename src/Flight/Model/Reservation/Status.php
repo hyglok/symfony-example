@@ -24,9 +24,7 @@ class Status
      */
     private function __construct(string $status)
     {
-        if (!in_array($status, self::getStatuses(), true)) {
-            throw new \LogicException('Unknown status');
-        }
+        if (!in_array($status, self::getStatuses(), true)) throw new \LogicException('Unknown status');
         $this->status = $status;
     }
 
@@ -37,17 +35,13 @@ class Status
 
     public function cancel()
     {
-        if ($this->isPaid()) {
-            throw new \LogicException('Cant cancel paid reservation');
-        }
+        if (!$this->isReserved()) throw new \LogicException('Cant cancel this reservation');
         $this->status = self::CANCELLED;
     }
 
     public function pay()
     {
-        if (!$this->isReserved()) {
-            throw new \LogicException('Cant pay this reservation');
-        }
+        if (!$this->isReserved()) throw new \LogicException('Cant pay this reservation');
         $this->status = self::PAID;
     }
 

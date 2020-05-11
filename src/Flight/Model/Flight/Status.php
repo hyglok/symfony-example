@@ -24,9 +24,7 @@ class Status
      */
     private function __construct(string $status)
     {
-        if (!in_array($status, self::getStatuses(), true)) {
-            throw new \LogicException('Unknown status');
-        }
+        if (!in_array($status, self::getStatuses(), true)) throw new \LogicException('Unknown status');
         $this->status = $status;
     }
 
@@ -37,9 +35,7 @@ class Status
 
     public function closeSale()
     {
-        if (!$this->isSaleOpened()) {
-            throw new \LogicException('Cant close sale for this flight');
-        }
+        if (!$this->isSaleOpened()) throw new \LogicException('Cant close sale for this flight');
         $this->status = self::SALE_CLOSED;
     }
 

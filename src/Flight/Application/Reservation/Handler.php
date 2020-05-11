@@ -30,6 +30,7 @@ class Handler implements MessageSubscriberInterface
     {
         $flight = $this->entityManager->find(Flight::class, $command->flightId);
         if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+        if(!$flight->isTicketsSaleOpened()) throw new \LogicException("Tickets sale for this flight is closed");
 
         if (!$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
             throw new \InvalidArgumentException("The seat $command->seat have already been occupied");

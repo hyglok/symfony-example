@@ -5,6 +5,7 @@ namespace Flight\Model\Ticket;
 
 use Doctrine\ORM\Mapping as ORM;
 use Flight\Model\Passenger;
+use Flight\Model\Ticket\Event\Cancelled;
 use Flight\Model\Ticket\Event\Purchased;
 use Flight\Model\Ticket\Event\Refunded;
 use Lib\Model\AggregateRoot;
@@ -82,6 +83,12 @@ class Ticket extends AggregateRoot
     {
         $this->status->refund();
         $this->addEvent(new Refunded($this->id, $this->flightId));
+    }
+
+    public function cancel()
+    {
+        $this->status->cancel();
+        $this->addEvent(new Cancelled($this->id, $this->flightId));
     }
 
     /**

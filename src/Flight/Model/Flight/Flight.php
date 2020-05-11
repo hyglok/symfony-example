@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Flight\Model\Flight;
 
 use Doctrine\ORM\Mapping as ORM;
+use Flight\Model\Flight\Event\Cancelled;
 use Flight\Model\Flight\Event\Registered;
+use Flight\Model\Flight\Event\SaleClosed;
 use Lib\Model\AggregateRoot;
 
 /**
@@ -42,16 +44,32 @@ class Flight extends AggregateRoot
         return $flight;
     }
 
-    public function isRefundAvailable(): bool
+    public function closeSale()
     {
-        //TODO: some logic
-        return true;
+        $this->status->closeSale();
+        $this->addEvent(new SaleClosed($this->id));
     }
 
+    public function cancel()
+    {
+        $this->status->cancel();
+        $this->addEvent(new Cancelled($this->id));
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRefundAvailable(): bool
+    {
+        return $this->status->isSaleOpened() && "some logic";
+    }
+
+    /**
+     * @return bool
+     */
     public function isTicketsSaleOpened(): bool
     {
-        //TODO: some logic
-        return true;
+        return $this->status->isSaleOpened();
     }
 
     public function getId(): string

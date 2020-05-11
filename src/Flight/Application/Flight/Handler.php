@@ -27,10 +27,34 @@ class Handler implements MessageSubscriberInterface
         $this->entityManager->persist(Flight::register());
     }
 
+    function closeSale(CloseSale $command)
+    {
+        $flight = $this->entityManager->find(Flight::class, $command->flightId);
+        if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+
+        $flight->closeSale();
+    }
+
+    function cancel(Cancel $command)
+    {
+        $flight = $this->entityManager->find(Flight::class, $command->flightId);
+        if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+
+        $flight->cancel();
+    }
+
     public static function getHandledMessages(): iterable
     {
         yield Register::class => [
             'method' => 'register',
+            'bus' => 'command',
+        ];
+        yield CloseSale::class => [
+            'method' => 'closeSale',
+            'bus' => 'command',
+        ];
+        yield Cancel::class => [
+            'method' => 'cancel',
             'bus' => 'command',
         ];
     }

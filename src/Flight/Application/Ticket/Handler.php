@@ -30,6 +30,7 @@ class Handler implements MessageSubscriberInterface
     {
         $flight = $this->entityManager->find(Flight::class, $command->flightId);
         if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+        if(!$flight->isTicketsSaleOpened()) throw new \LogicException("Tickets sale for this flight is closed");
 
         if (!$command->fromReservation && !$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
             throw new \InvalidArgumentException("The seat $command->seat have already been occupied");
@@ -42,6 +43,14 @@ class Handler implements MessageSubscriberInterface
             new Passenger($command->firstName, $command->lastName, new Email($command->email))
         );
         $this->entityManager->persist($ticket);
+    }
+
+    function cancel(Cancel $command)
+    {
+        $ticket = $this->entityManager->find(Ticket::class, $command->ticketId);
+        if (!$ticket) throw new \InvalidArgumentException("Ticket with id $command->ticketId not exists");
+
+        $ticket->cancel();
     }
 
     function refund(Refund $command)
@@ -59,6 +68,10 @@ class Handler implements MessageSubscriberInterface
     {
         yield Purchase::class => [
             'method' => 'purchase',
+            'bus' => 'command',
+        ];
+        yield Cancel::class => [
+            'method' => 'cancel',
             'bus' => 'command',
         ];
         yield Refund::class => [
