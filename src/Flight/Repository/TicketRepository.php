@@ -16,7 +16,7 @@ class TicketRepository extends EntityRepository
     public function findOneBySeat($seat, $flightId): ?Ticket
     {
         /** @var Ticket|null $ticket */
-        $ticket = $this->findOneBy(['flight' => $flightId, 'seat' => $seat]);
+        $ticket = $this->findOneBy(['flightId' => $flightId, 'seat' => $seat]);
 
         return $ticket;
     }

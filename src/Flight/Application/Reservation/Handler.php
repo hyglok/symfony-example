@@ -29,9 +29,8 @@ class Handler implements MessageSubscriberInterface
     function reserve(Reserve $command)
     {
         $flight = $this->entityManager->find(Flight::class, $command->flightId);
-        if (!$flight) {
-            throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
-        }
+        if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+
         if (!$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
             throw new \InvalidArgumentException("The seat $command->seat have already been occupied");
         }
@@ -39,7 +38,7 @@ class Handler implements MessageSubscriberInterface
         $reservation = Reservation::reserve(
             $command->seat,
             $command->customerId,
-            $flight,
+            $flight->getId(),
             new Passenger($command->firstName, $command->lastName, new Email($command->email))
         );
         $this->entityManager->persist($reservation);
@@ -48,18 +47,19 @@ class Handler implements MessageSubscriberInterface
     function cancel(Cancel $command)
     {
         $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
-        if (!$reservation) {
-            throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
-        }
+        if (!$reservation) throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
+
         $reservation->cancel();
     }
 
     function pay(Pay $command)
     {
         $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
-        if (!$reservation) {
-            throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
-        }
+        if (!$reservation) throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
+
+        $flight = $this->entityManager->find(Flight::class, $reservation->flight());
+        if(!$flight->isTicketsSaleOpened()) throw new \LogicException("Tickets sale for this flight is closed");
+
         $reservation->pay();
     }
 

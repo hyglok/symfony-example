@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Flight\Model\Ticket;
 
 use Doctrine\ORM\Mapping as ORM;
-use Flight\Model\Flight\Flight;
 use Flight\Model\Passenger;
 use Flight\Model\Ticket\Event\Purchased;
 use Flight\Model\Ticket\Event\Refunded;
@@ -33,10 +32,9 @@ class Ticket extends AggregateRoot
     private string $customerId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Flight\Model\Flight\Flight")
-     * @ORM\JoinColumn(name="flight_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\Column(type="guid")
      */
-    private Flight $flight;
+    private string $flightId;
 
     /**
      * @ORM\Embedded(class="Flight\Model\Passenger")
@@ -51,41 +49,46 @@ class Ticket extends AggregateRoot
     /**
      * @param int $seat
      * @param string $customerId
-     * @param Flight $flight
+     * @param string $flightId
      * @param Passenger $passenger
      */
-    private function __construct(int $seat, string $customerId, Flight $flight, Passenger $passenger)
+    private function __construct(int $seat, string $customerId, string $flightId, Passenger $passenger)
     {
         $this->id = uuid_create();
         $this->status = Status::purchase();
         $this->seat = $seat;
         $this->passenger = $passenger;
         $this->customerId = $customerId;
-        $this->flight = $flight;
+        $this->flightId = $flightId;
     }
 
     /**
      * @param int $seat
      * @param string $customerId
-     * @param Flight $flight
+     * @param string $flightId
      * @param Passenger $passenger
      *
      * @return static
      */
-    public static function purchase(int $seat, string $customerId, Flight $flight, Passenger $passenger): self
+    public static function purchase(int $seat, string $customerId, string $flightId, Passenger $passenger): self
     {
-        $ticket = new self($seat, $customerId, $flight, $passenger);
-        $ticket->addEvent(new Purchased($ticket->id, $ticket->flight->getId()));
+        $ticket = new self($seat, $customerId, $flightId, $passenger);
+        $ticket->addEvent(new Purchased($ticket->id, $ticket->flightId));
 
         return $ticket;
     }
 
     public function refund()
     {
-        if(!$this->flight->isRefundAvailable()) {
-            throw new \LogicException("Refund for this flight is closed");
-        }
         $this->status->refund();
-        $this->addEvent(new Refunded($this->id, $this->flight->getId()));
+        $this->addEvent(new Refunded($this->id, $this->flightId));
+    }
+
+    /**
+     * @return string
+     */
+    public function flight(): string
+    {
+        return $this->flightId;
     }
 }

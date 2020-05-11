@@ -90,21 +90,6 @@ final class DoctrineMiddleware implements MiddlewareInterface
      */
     private function fireEvents(UnitOfWork $unitOfWork)
     {
-//        array_map(
-//            function ($entity) {
-//                if ($entity instanceof AggregateRoot) {
-//                    array_map(
-//                        function (Event $event) {
-//                            $this->transport->send(Envelope::wrap($event));
-//                        },
-//                        $entity->riseEvents()
-//                    );
-//                }
-//            },
-//            $unitOfWork->getScheduledEntityInsertions(),
-//            $unitOfWork->getScheduledEntityDeletions(),
-//            $unitOfWork->getScheduledEntityUpdates()
-//        );
         array_map(
             function ($entities) {
                 array_map(

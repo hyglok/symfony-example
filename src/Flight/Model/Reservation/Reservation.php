@@ -34,10 +34,9 @@ class Reservation extends AggregateRoot
     private string $customerId;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Flight\Model\Flight\Flight")
-     * @ORM\JoinColumn(name="flight_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\Column(type="guid")
      */
-    private Flight $flight;
+    private string $flightId;
 
     /**
      * @ORM\Column(type="guid", name="ticket_id", nullable=true)
@@ -57,31 +56,31 @@ class Reservation extends AggregateRoot
     /**
      * @param int $seat
      * @param string $customerId
-     * @param Flight $flight
+     * @param string $flightId
      * @param Passenger $passenger
      */
-    private function __construct(int $seat, string $customerId, Flight $flight, Passenger $passenger)
+    private function __construct(int $seat, string $customerId, string $flightId, Passenger $passenger)
     {
         $this->id = uuid_create();
         $this->status = Status::reserve();
         $this->seat = $seat;
         $this->passenger = $passenger;
         $this->customerId = $customerId;
-        $this->flight = $flight;
+        $this->flightId = $flightId;
     }
 
     /**
      * @param int $seat
      * @param string $customerId
-     * @param Flight $flight
+     * @param string $flightId
      * @param Passenger $passenger
      *
      * @return static
      */
-    public static function reserve(int $seat, string $customerId, Flight $flight, Passenger $passenger): self
+    public static function reserve(int $seat, string $customerId, string $flightId, Passenger $passenger): self
     {
-        $reservation = new self($seat, $customerId, $flight, $passenger);
-        $reservation->addEvent(new Reserved($reservation->id, $reservation->flight->getId()));
+        $reservation = new self($seat, $customerId, $flightId, $passenger);
+        $reservation->addEvent(new Reserved($reservation->id, $flightId));
 
         return $reservation;
     }
@@ -89,23 +88,28 @@ class Reservation extends AggregateRoot
     public function cancel()
     {
         $this->status->cancel();
-        $this->addEvent(new Cancelled($this->id, $this->flight->getId()));
+        $this->addEvent(new Cancelled($this->id, $this->flightId));
     }
 
     public function pay()
     {
-        if(!$this->flight->isTicketsSaleOpened()) {
-            throw new \LogicException("Tickets sale for this flight is closed");
-        }
         $this->status->pay();
         $this->addEvent(new Paid(
             $this->id,
             $this->seat,
             $this->customerId,
-            $this->flight->getId(),
+            $this->flightId,
             $this->passenger->firstName(),
             $this->passenger->lastName(),
             $this->passenger->email()->address()
         ));
+    }
+
+    /**
+     * @return string
+     */
+    public function flight(): string
+    {
+        return $this->flightId;
     }
 }
