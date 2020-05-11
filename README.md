@@ -20,3 +20,15 @@ Notification example:
 When a flight is canceled, the user who have booked or purchased tickets for this flight are sent flight cancellation e-mails in the background (asynchronously).
 In the case of a response to the event with an HTTP code other than 200, the event will be retransmitted after a certain delay.
 ```
+
+## Usage
+* Install docker
+* Run ```docker-composer up -d``` in the root directory of project
+* Use localhost:8080 as host
+* Follow [Documentation](DOC.md) to make requests
+
+### Prod environment
+```
+Rabbit uses for messages
+Redis uses for cache
+```

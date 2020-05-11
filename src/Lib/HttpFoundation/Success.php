@@ -15,9 +15,7 @@ final class Success implements Result
     public static function ok(): Success
     {
         return new Success(
-            new class {
-                public string $status = 'ok';
-            }
+            new Ok()
         );
     }
 }

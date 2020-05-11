@@ -1,0 +1,79 @@
+redis:
+  image: redis
+  ports:
+    - "6379:6379"
+
+rabbitmq:
+  image: "rabbitmq:management"
+  ports:
+    - "15672:15672"
+    - "5672:5672"
+
+app:
+  build: .
+  links:
+    - redis
+    - rabbitmq
+    - db
+  volumes:
+    - .:/var/www
+  environment:
+    DATABASE_URL: pgsql://user:pass@db/skeleton
+    APP_ENV: prod
+    APP_DEBUG: 0
+    APP_SECRET: 330a1b9394904fcdb80756fe4048ea04
+    REDIS_DSN:  redis://redis
+    MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+
+
+initialize:
+  build: .
+  command: /var/www/bin/console -n doctrine:migrations:migrate &&
+           /var/www/bin/console messenger:setup-transports
+  links:
+    - redis
+    - rabbitmq
+    - db
+  volumes:
+    - .:/var/www
+  environment:
+    DATABASE_URL: pgsql://user:pass@db/skeleton
+    APP_ENV: prod
+    APP_DEBUG: 0
+    APP_SECRET: 330a1b9394904fcdb80756fe4048ea04
+    REDIS_DSN:  redis://redis
+    MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+
+consumer:
+  build: .
+  command: /var/www/bin/console -n messenger:consume doctrine
+  links:
+    - redis
+    - rabbitmq
+    - db
+  volumes:
+    - .:/var/www
+  environment:
+    DATABASE_URL: pgsql://user:pass@db/skeleton
+    APP_ENV: prod
+    APP_DEBUG: 0
+    APP_SECRET: 330a1b9394904fcdb80756fe4048ea04
+    REDIS_DSN:  redis://redis
+    MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+
+nginx:
+  build: _dockerfiles/nginx
+  ports:
+    - "8080:80"
+  volumes:
+    - .:/var/www
+  links:
+    - app
+    - rabbitmq
+
+db:
+  image: postgres:12
+  environment:
+    POSTGRES_PASSWORD: pass
+    POSTGRES_USER: user
+    POSTGRES_DB: skeleton

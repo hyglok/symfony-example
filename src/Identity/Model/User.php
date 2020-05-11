@@ -11,7 +11,7 @@ use Lib\Model\AggregateRoot;
  * @ORM\Table(name="users")
  * @ORM\Entity(repositoryClass="Identity\Repository\UserRepository")
  */
-final class User extends AggregateRoot
+class User extends AggregateRoot
 {
     /**
      * @ORM\Id
