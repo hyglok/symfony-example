@@ -1,0 +1,30 @@
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+
+        # IMPORTANT: You MUST configure your server version,
+        # either here or in the DATABASE_URL env var (see .env file)
+        #server_version: '5.7'
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            Flight:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Flight/Model'
+                prefix: 'Flight\Model'
+                alias: Flight
+            Identity:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Identity/Model'
+                prefix: 'Identity\Model'
+                alias: Identity
+            Shared:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Shared/Model'
+                prefix: 'Shared\Model'
+                alias: Shared
