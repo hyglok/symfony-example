@@ -41,12 +41,13 @@ class TicketController
      */
     public function purchase(Purchase $command): Result
     {
+        $errors = $this->validator->validate($command);
+        if (count($errors) > 0) {
+            return Fail::fromValidation($errors);
+        }
+
         $lock = $this->lockFactory->createLock($command->flightId . $command->seat);
         if ($lock->acquire()) {
-            $errors = $this->validator->validate($command);
-            if (count($errors) > 0) {
-                return Fail::fromValidation($errors);
-            }
             $this->commandBus->dispatch($command);
             $lock->release();
         }
@@ -62,13 +63,14 @@ class TicketController
      */
     public function refund(string $ticketId): Result
     {
+        $command = new Refund($ticketId);
+        $errors = $this->validator->validate($command);
+        if (count($errors) > 0) {
+            return Fail::fromValidation($errors);
+        }
+
         $lock = $this->lockFactory->createLock('refund' . $ticketId);
         if ($lock->acquire()) {
-            $command = new Refund($ticketId);
-            $errors = $this->validator->validate($command);
-            if (count($errors) > 0) {
-                return Fail::fromValidation($errors);
-            }
             $this->commandBus->dispatch($command);
             $lock->release();
         }

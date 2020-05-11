@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Flight\Application\Ticket;
+namespace Flight\Application\Reservation;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Flight\Application\SeatChecker;
 use Flight\Model\Flight\Flight;
 use Flight\Model\Passenger;
-use Flight\Model\Ticket\Ticket;
+use Flight\Model\Reservation\Reservation;
 use Lib\Model\Email;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
@@ -26,42 +26,55 @@ class Handler implements MessageSubscriberInterface
         $this->seatChecker = $seatChecker;
     }
 
-    function purchase(Purchase $command)
+    function reserve(Reserve $command)
     {
         $flight = $this->entityManager->find(Flight::class, $command->flightId);
         if (!$flight) {
             throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
         }
-        if (!$command->fromReservation && !$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
+        if (!$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
             throw new \InvalidArgumentException("The seat $command->seat have already been occupied");
         }
 
-        $ticket = Ticket::purchase(
+        $reservation = Reservation::reserve(
             $command->seat,
             $command->customerId,
             $flight,
             new Passenger($command->firstName, $command->lastName, new Email($command->email))
         );
-        $this->entityManager->persist($ticket);
+        $this->entityManager->persist($reservation);
     }
 
-    function refund(Refund $command)
+    function cancel(Cancel $command)
     {
-        $ticket = $this->entityManager->find(Ticket::class, $command->ticketId);
-        if (!$ticket) {
-            throw new \InvalidArgumentException("Ticket with id $command->ticketId not exists");
+        $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
+        if (!$reservation) {
+            throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
         }
-        $ticket->refund();
+        $reservation->cancel();
+    }
+
+    function pay(Pay $command)
+    {
+        $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
+        if (!$reservation) {
+            throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
+        }
+        $reservation->pay();
     }
 
     public static function getHandledMessages(): iterable
     {
-        yield Purchase::class => [
-            'method' => 'purchase',
+        yield Reserve::class => [
+            'method' => 'reserve',
             'bus' => 'command',
         ];
-        yield Refund::class => [
-            'method' => 'refund',
+        yield Cancel::class => [
+            'method' => 'cancel',
+            'bus' => 'command',
+        ];
+        yield Pay::class => [
+            'method' => 'pay',
             'bus' => 'command',
         ];
     }

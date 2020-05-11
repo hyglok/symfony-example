@@ -20,5 +20,4 @@ class TicketRepository extends EntityRepository
 
         return $ticket;
     }
-
 }

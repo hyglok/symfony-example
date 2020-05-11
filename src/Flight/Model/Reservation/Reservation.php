@@ -1,20 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace Flight\Model\Ticket;
+namespace Flight\Model\Reservation;
 
-use Doctrine\ORM\Mapping as ORM;
 use Flight\Model\Flight\Flight;
 use Flight\Model\Passenger;
-use Flight\Model\Ticket\Event\Purchased;
-use Flight\Model\Ticket\Event\Refunded;
+use Flight\Model\Reservation\Event\Cancelled;
+use Flight\Model\Reservation\Event\Paid;
+use Flight\Model\Reservation\Event\Reserved;
 use Lib\Model\AggregateRoot;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="tickets")
- * @ORM\Entity(repositoryClass="Flight\Repository\TicketRepository")
+ * @ORM\Table(name="reservations")
+ * @ORM\Entity(repositoryClass="Flight\Repository\ReservationRepository")
  */
-class Ticket extends AggregateRoot
+class Reservation extends AggregateRoot
 {
     /**
      * @ORM\Id
@@ -39,6 +40,11 @@ class Ticket extends AggregateRoot
     private Flight $flight;
 
     /**
+     * @ORM\Column(type="guid", name="ticket_id", nullable=true)
+     */
+    private string $ticketId;
+
+    /**
      * @ORM\Embedded(class="Flight\Model\Passenger")
      */
     private Passenger $passenger;
@@ -57,7 +63,7 @@ class Ticket extends AggregateRoot
     private function __construct(int $seat, string $customerId, Flight $flight, Passenger $passenger)
     {
         $this->id = uuid_create();
-        $this->status = Status::purchase();
+        $this->status = Status::reserve();
         $this->seat = $seat;
         $this->passenger = $passenger;
         $this->customerId = $customerId;
@@ -72,20 +78,26 @@ class Ticket extends AggregateRoot
      *
      * @return static
      */
-    public static function purchase(int $seat, string $customerId, Flight $flight, Passenger $passenger): self
+    public static function reserve(int $seat, string $customerId, Flight $flight, Passenger $passenger): self
     {
-        $ticket = new self($seat, $customerId, $flight, $passenger);
-        $ticket->addEvent(new Purchased($ticket->id, $ticket->flight->getId()));
+        $reservation = new self($seat, $customerId, $flight, $passenger);
+        $reservation->addEvent(new Reserved($reservation->id, $reservation->flight->getId()));
 
-        return $ticket;
+        return $reservation;
     }
 
-    public function refund()
+    public function cancel()
     {
-        if(!$this->flight->isRefundAvailable()) {
-            throw new \LogicException("Refund for this flight is closed");
+        $this->status->cancel();
+        $this->addEvent(new Cancelled($this->id, $this->flight->getId()));
+    }
+
+    public function pay()
+    {
+        if(!$this->flight->isTicketsSaleOpened()) {
+            throw new \LogicException("Tickets sale for this flight is closed");
         }
-        $this->status->refund();
-        $this->addEvent(new Refunded($this->id, $this->flight->getId()));
+        $this->status->pay();
+        $this->addEvent(new Paid($this->id, $this->seat , $this->customerId, $this->flight->getId(), $this->passenger));
     }
 }

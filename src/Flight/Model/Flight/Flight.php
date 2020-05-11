@@ -24,9 +24,15 @@ class Flight
 
     //TODO: Flight info fields
 
-    public function isRefundPossible(): bool
+    public function isRefundAvailable(): bool
     {
-        //some logic
+        //TODO: some logic
+        return true;
+    }
+
+    public function isTicketsSaleOpened(): bool
+    {
+        //TODO: some logic
         return true;
     }
 

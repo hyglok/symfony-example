@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Flight\Application\Ticket;
+namespace Flight\Application\Reservation;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Purchase
+class Reserve
 {
     /**
      * @Assert\NotNull()
@@ -37,6 +37,4 @@ class Purchase
      * @Assert\Email(message = "The email '{{ value }}' is not a valid email")
      */
     public string $email;
-
-    public bool $fromReservation = false;
 }

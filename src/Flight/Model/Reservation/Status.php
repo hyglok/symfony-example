@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Flight\Model\Ticket;
+namespace Flight\Model\Reservation;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,9 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Status
 {
-    const PURCHASED = 'purchased';
+    const RESERVED = 'reserved';
     const CANCELLED = 'cancelled';
-    const REFUNDED = 'refunded';
+    const PAID = 'paid';
 
     /**
      * @ORM\Column(name="status", type="string", length=20)
@@ -30,25 +30,38 @@ class Status
         $this->status = $status;
     }
 
-    public static function purchase(): self
+    public static function reserve(): self
     {
-        return new self(self::PURCHASED);
+        return new self(self::RESERVED);
     }
 
-    public function refund()
+    public function cancel()
     {
-        if (!($this->isPurchased() || $this->isCancelled())) {
-            throw new \LogicException('Cant refund');
+        if ($this->isPaid()) {
+            throw new \LogicException('Cant cancel paid reservation');
         }
-        $this->status = self::REFUNDED;
+        $this->status = self::CANCELLED;
+    }
+
+    public function pay()
+    {
+        if ($this->isCancelled() || $this->isPaid()) {
+            throw new \LogicException('Cant pay this reservation');
+        }
+        $this->status = self::PAID;
     }
 
     /**
      * @return bool
      */
-    public function isPurchased()
+    public function isReserved()
     {
-        return $this->status === self::PURCHASED;
+        return $this->status === self::RESERVED;
+    }
+
+    public function isPaid()
+    {
+        return $this->status === self::PAID;
     }
 
     /**
@@ -60,22 +73,14 @@ class Status
     }
 
     /**
-     * @return bool
-     */
-    public function isRefunded()
-    {
-        return $this->status === self::REFUNDED;
-    }
-
-    /**
      * @return array
      */
     public static function getStatuses()
     {
         return [
-            self::PURCHASED,
+            self::RESERVED,
             self::CANCELLED,
-            self::REFUNDED,
+            self::PAID,
         ];
     }
 
