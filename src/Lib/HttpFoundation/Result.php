@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\HttpFoundation;
+namespace Lib\HttpFoundation;
 
 interface Result
 {

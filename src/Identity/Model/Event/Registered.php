@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\Event\User;
+namespace Identity\Model\Event;
 
-use Shared\Model\Event;
+use Lib\Model\Event;
 
 final class Registered implements Event
 {

@@ -22,9 +22,9 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Identity/Model'
                 prefix: 'Identity\Model'
                 alias: Identity
-            Shared:
+            Lib:
                 is_bundle: false
                 type: annotation
-                dir: '%kernel.project_dir%/src/Shared/Model'
-                prefix: 'Shared\Model'
-                alias: Shared
+                dir: '%kernel.project_dir%/src/Lib/Model'
+                prefix: 'Lib\Model'
+                alias: Lib

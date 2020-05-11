@@ -5,8 +5,9 @@ namespace Flight\Api\Controller;
 
 use Flight\Application\Ticket\Purchase;
 use Flight\Application\Ticket\Refund;
-use Shared\HttpFoundation\Result;
-use Shared\HttpFoundation\Success;
+use Lib\HttpFoundation\Fail;
+use Lib\HttpFoundation\Result;
+use Lib\HttpFoundation\Success;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,13 +45,13 @@ class TicketController
         if ($lock->acquire()) {
             $errors = $this->validator->validate($command);
             if (count($errors) > 0) {
-                var_dump((string) $errors);exit;
+                return Fail::fromValidation($errors);
             }
             $this->commandBus->dispatch($command);
             $lock->release();
         }
 
-        return new Success($command);
+        return Success::ok();
     }
 
     /**
@@ -66,12 +67,12 @@ class TicketController
             $command = new Refund($ticketId);
             $errors = $this->validator->validate($command);
             if (count($errors) > 0) {
-                var_dump((string) $errors);exit;
+                return Fail::fromValidation($errors);
             }
             $this->commandBus->dispatch($command);
             $lock->release();
         }
 
-        return new Success($command);
+        return Success::ok();
     }
 }

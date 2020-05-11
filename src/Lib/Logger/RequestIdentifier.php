@@ -1,5 +1,5 @@
 <?php
-namespace Shared\Logger;
+namespace Lib\Logger;
 
 /**
  * Class RequestIdentifier

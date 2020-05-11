@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\Event\Ticket;
+namespace Flight\Model\Ticket\Event;
 
-use Shared\Model\Event;
+use Lib\Model\Event;
 
-final class Refunded implements Event
+final class Purchased implements Event
 {
     public string $id;
     public string $flightId;

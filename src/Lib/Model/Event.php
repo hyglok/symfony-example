@@ -1,6 +1,6 @@
 <?php
 
-namespace Shared\Model;
+namespace Lib\Model;
 
 interface Event
 {

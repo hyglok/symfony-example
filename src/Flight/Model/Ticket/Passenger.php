@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Flight\Model\Ticket;
 
-use Shared\Model\Email;
+use Lib\Model\Email;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,7 +21,7 @@ class Passenger
      */
     private string $lastName;
     /**
-     * @ORM\Embedded(class="Shared\Model\Email")
+     * @ORM\Embedded(class="Lib\Model\Email")
      */
     private Email $email;
 

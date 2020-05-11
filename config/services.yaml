@@ -28,19 +28,19 @@ services:
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
-  Shared\HttpFoundation\JsonValueResolver:
+  Lib\HttpFoundation\JsonValueResolver:
     arguments:
       - '@serializer'
     tags:
       - { name: controller.argument_value_resolver, priority: 50 }
 
-  Shared\HttpFoundation\ResponseJsonListener:
+  Lib\HttpFoundation\ResponseJsonListener:
     arguments:
       - '@serializer'
     tags:
       - {name: kernel.event_subscriber}
 
-  Shared\Messenger\DoctrineMiddleware:
+  Lib\Messenger\DoctrineMiddleware:
     arguments:
       - '@messenger.transport.doctrine'
       - '@doctrine'

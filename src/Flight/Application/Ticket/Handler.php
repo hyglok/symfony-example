@@ -8,7 +8,7 @@ use Flight\Model\Flight\Flight;
 use Flight\Model\Ticket\Passenger;
 use Flight\Model\Ticket\Ticket;
 use Flight\Repository\FlightRepository;
-use Shared\Model\Email;
+use Lib\Model\Email;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class Handler implements MessageSubscriberInterface

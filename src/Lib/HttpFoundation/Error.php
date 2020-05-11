@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\HttpFoundation;
+namespace Lib\HttpFoundation;
 
 final class Error
 {
@@ -15,4 +15,5 @@ final class Error
         $this->messageTemplate = $messageTemplate;
         $this->property = $property;
     }
+
 }

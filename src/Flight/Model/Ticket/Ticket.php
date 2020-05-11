@@ -5,9 +5,9 @@ namespace Flight\Model\Ticket;
 
 use Doctrine\ORM\Mapping as ORM;
 use Flight\Model\Flight\Flight;
-use Shared\Event\Ticket\Refunded;
-use Shared\Model\AggregateRoot;
-use Shared\Event\Ticket\Purchased;
+use Flight\Model\Ticket\Event\Purchased;
+use Flight\Model\Ticket\Event\Refunded;
+use Lib\Model\AggregateRoot;
 
 /**
  * @ORM\Table(name="tickets")

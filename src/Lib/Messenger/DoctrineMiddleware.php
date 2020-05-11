@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\Messenger;
+namespace Lib\Messenger;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\Persistence\ManagerRegistry;
-use Shared\Model\AggregateRoot;
-use Shared\Model\Event;
+use Lib\Model\AggregateRoot;
+use Lib\Model\Event;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Shared\Model;
+namespace Lib\Model;
 
 use Doctrine\ORM\Mapping as ORM;
 

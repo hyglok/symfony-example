@@ -14,7 +14,7 @@ framework:
             command:
                 middleware:
                     - validation
-                    - 'Shared\Messenger\DoctrineMiddleware'
+                    - 'Lib\Messenger\DoctrineMiddleware'
         serializer:
             default_serializer: messenger.transport.symfony_serializer
             symfony_serializer:

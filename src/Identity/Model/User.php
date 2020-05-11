@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace Identity\Model;
 
 use Doctrine\ORM\Mapping as ORM;
-use Shared\Model\AggregateRoot;
-use Shared\Event\User\Registered;
+use Identity\Model\Event\Registered;
+use Lib\Model\AggregateRoot;
 
 /**
  * @ORM\Table(name="users")
