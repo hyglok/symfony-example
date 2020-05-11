@@ -7,6 +7,7 @@ use Flight\Application\Ticket\Purchase;
 use Flight\Application\Ticket\Refund;
 use Shared\HttpFoundation\Result;
 use Shared\HttpFoundation\Success;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -18,11 +19,17 @@ class TicketController
 {
     private MessageBusInterface $commandBus;
     private ValidatorInterface $validator;
+    private LockFactory $lockFactory;
 
-    public function __construct(MessageBusInterface $commandBus, ValidatorInterface $validator)
+    public function __construct(
+        MessageBusInterface $commandBus,
+        ValidatorInterface $validator,
+        LockFactory $lockFactory
+    )
     {
         $this->commandBus = $commandBus;
         $this->validator = $validator;
+        $this->lockFactory = $lockFactory;
     }
 
     /**
@@ -33,11 +40,15 @@ class TicketController
      */
     public function purchase(Purchase $command): Result
     {
-        $errors = $this->validator->validate($command);
-        if (count($errors) > 0) {
-            var_dump((string) $errors);exit;
+        $lock = $this->lockFactory->createLock($command->flightId . $command->seat);
+        if ($lock->acquire()) {
+            $errors = $this->validator->validate($command);
+            if (count($errors) > 0) {
+                var_dump((string) $errors);exit;
+            }
+            $this->commandBus->dispatch($command);
+            $lock->release();
         }
-        $this->commandBus->dispatch($command);
 
         return new Success($command);
     }
@@ -50,12 +61,16 @@ class TicketController
      */
     public function refund(string $ticketId): Result
     {
-        $command = new Refund($ticketId);
-        $errors = $this->validator->validate($command);
-        if (count($errors) > 0) {
-            var_dump((string) $errors);exit;
+        $lock = $this->lockFactory->createLock('refund' . $ticketId);
+        if ($lock->acquire()) {
+            $command = new Refund($ticketId);
+            $errors = $this->validator->validate($command);
+            if (count($errors) > 0) {
+                var_dump((string) $errors);exit;
+            }
+            $this->commandBus->dispatch($command);
+            $lock->release();
         }
-        $this->commandBus->dispatch($command);
 
         return new Success($command);
     }

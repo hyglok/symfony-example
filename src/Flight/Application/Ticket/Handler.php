@@ -34,6 +34,11 @@ class Handler implements MessageSubscriberInterface
         if (!$flight) {
             throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
         }
+        $ticket = $this->entityManager->getRepository(Ticket::class)->findOneBySeat($command->seat, $command->flightId);
+        if ($ticket) {
+            throw new \InvalidArgumentException("The seat $command->seat have already been occupied");
+        }
+
         $ticket = Ticket::purchase(
             $command->seat,
             $command->customerId,
