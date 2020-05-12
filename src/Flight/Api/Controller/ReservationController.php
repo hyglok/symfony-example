@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Flight\Api\Controller;
 
-use Flight\Application\Flight\QueryObject\FlightsQO;
 use Flight\Application\Reservation\Cancel;
 use Flight\Application\Reservation\Pay;
 use Flight\Application\Reservation\QueryObject\ReservationsQO;

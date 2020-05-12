@@ -5,8 +5,11 @@ namespace Flight\Application\Reservation;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Flight\Application\SeatChecker;
+use Flight\Model\Flight\Exceptions\FlightNotFound;
+use Flight\Model\Flight\Exceptions\SeatOccupied;
 use Flight\Model\Flight\Flight;
 use Flight\Model\Passenger;
+use Flight\Model\Reservation\Exceptions\ReservationNotFound;
 use Flight\Model\Reservation\Reservation;
 use Lib\Model\Email;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
@@ -26,14 +29,19 @@ class Handler implements MessageSubscriberInterface
         $this->seatChecker = $seatChecker;
     }
 
+    /**
+     * @param Reserve $command
+     *
+     * @throws FlightNotFound | SeatOccupied
+     */
     function reserve(Reserve $command)
     {
         $flight = $this->entityManager->find(Flight::class, $command->flightId);
-        if (!$flight) throw new \InvalidArgumentException("Flight with id $command->flightId not exists");
+        if (!$flight) throw new FlightNotFound($command->flightId);
         if(!$flight->isTicketsSaleOpened()) throw new \LogicException("Tickets sale for this flight is closed");
 
         if (!$this->seatChecker->isSeatAvailable($command->flightId, $command->seat)) {
-            throw new \InvalidArgumentException("The seat $command->seat have already been occupied");
+            throw new SeatOccupied($command->seat);
         }
 
         $reservation = Reservation::reserve(
@@ -45,20 +53,31 @@ class Handler implements MessageSubscriberInterface
         $this->entityManager->persist($reservation);
     }
 
+    /**
+     * @param Cancel $command
+     *
+     * @throws ReservationNotFound
+     */
     function cancel(Cancel $command)
     {
         $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
-        if (!$reservation) throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
+        if (!$reservation) throw new ReservationNotFound($command->reservationId);
 
         $reservation->cancel();
     }
 
+    /**
+     * @param Pay $command
+     *
+     * @throws FlightNotFound | ReservationNotFound
+     */
     function pay(Pay $command)
     {
         $reservation = $this->entityManager->find(Reservation::class, $command->reservationId);
-        if (!$reservation) throw new \InvalidArgumentException("Reservation with id $command->reservationId not exists");
+        if (!$reservation) throw new ReservationNotFound($command->reservationId);
 
         $flight = $this->entityManager->find(Flight::class, $reservation->flight());
+        if (!$flight) throw new FlightNotFound($reservation->flight());
         if(!$flight->isTicketsSaleOpened()) throw new \LogicException("Tickets sale for this flight is closed");
 
         $reservation->pay();

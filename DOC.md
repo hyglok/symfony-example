@@ -1,5 +1,5 @@
 
-# Arlines Test Task
+# Airlines Test Task
 
 
 
@@ -7,12 +7,12 @@
 
 * [Default](#default)
 
-  * [Purchase Ticket](#1-purchase-ticket)
-  * [Refund Ticket](#2-refund-ticket)
-  * [Reserve seat](#3-reserve-seat)
-  * [Cancel Reservation](#4-cancel-reservation)
-  * [Pay Reservation](#5-pay-reservation)
-  * [Register Flight](#6-register-flight)
+  * [Register Flight](#1-register-flight)
+  * [Purchase Ticket](#2-purchase-ticket)
+  * [Refund Ticket](#3-refund-ticket)
+  * [Reserve seat](#4-reserve-seat)
+  * [Cancel Reservation](#5-cancel-reservation)
+  * [Pay Reservation](#6-pay-reservation)
   * [Flight Sales Completed](#7-flight-sales-completed)
   * [Flight Cancelled](#8-flight-cancelled)
   * [Flights](#9-flights)
@@ -27,7 +27,30 @@
 
 
 
-### 1. Purchase Ticket
+### 1. Register Flight
+
+
+Some info fields ommited. This route just creates flight with id and state status.
+
+
+***Endpoint:***
+
+```bash
+Method: POST
+Type: RAW
+URL: https://127.0.0.1:8000/api/v1/flights/register
+```
+
+
+***Headers:***
+
+| Key | Value | Description |
+| --- | ------|-------------|
+| Content-Type | application/json |  |
+
+
+
+### 2. Purchase Ticket
 
 
 
@@ -63,7 +86,7 @@ URL: https://127.0.0.1:8000/api/v1/tickets/purchase
 
 
 
-### 2. Refund Ticket
+### 3. Refund Ticket
 
 
 
@@ -84,7 +107,7 @@ URL: https://127.0.0.1:8000/api/v1/tickets/refund/0824c29b-3de5-4127-abfe-9a0a68
 
 
 
-### 3. Reserve seat
+### 4. Reserve seat
 
 
 
@@ -120,7 +143,7 @@ URL: https://127.0.0.1:8000/api/v1/reservations/reserve
 
 
 
-### 4. Cancel Reservation
+### 5. Cancel Reservation
 
 
 
@@ -141,7 +164,7 @@ URL: https://127.0.0.1:8000/api/v1/reservations/cancel/80461282-13c0-4c32-a491-9
 
 
 
-### 5. Pay Reservation
+### 6. Pay Reservation
 
 
 
@@ -151,29 +174,6 @@ URL: https://127.0.0.1:8000/api/v1/reservations/cancel/80461282-13c0-4c32-a491-9
 Method: POST
 Type: RAW
 URL: https://127.0.0.1:8000/api/v1/reservations/pay/f17cf8af-e52b-41dc-afcb-94267bac9f26
-```
-
-
-***Headers:***
-
-| Key | Value | Description |
-| --- | ------|-------------|
-| Content-Type | application/json |  |
-
-
-
-### 6. Register Flight
-
-
-Some info fields ommited. This route just creates flight with id and state status.
-
-
-***Endpoint:***
-
-```bash
-Method: POST
-Type: RAW
-URL: https://127.0.0.1:8000/api/v1/flights/register
 ```
 
 
@@ -461,4 +461,4 @@ Status: Success | Code: 200
 
 ---
 [Back to top](#arlines-test-task)
-> Made with &#9829; by [thedevsaddam](https://github.com/thedevsaddam) | Generated at: 2020-05-12 10:15:55 by [docgen](https://github.com/thedevsaddam/docgen)
+> Made with &#9829; by [thedevsaddam](https://github.com/thedevsaddam) | Generated at: 2020-05-12 10:26:52 by [docgen](https://github.com/thedevsaddam/docgen)

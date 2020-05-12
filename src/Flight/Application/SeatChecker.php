@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Flight\Application;
 
-
 use Doctrine\ORM\EntityManagerInterface;
 use Flight\Model\Reservation\Reservation;
 use Flight\Model\Ticket\Ticket;
