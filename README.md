@@ -27,6 +27,9 @@ In the case of a response to the event with an HTTP code other than 200, the eve
 * Use localhost:8080 as host
 * Follow [Documentation](DOC.md) to make requests
 
+## Known issues
+* Write acceptance tests
+
 ### Prod environment
 ```
 Rabbit uses for messages
