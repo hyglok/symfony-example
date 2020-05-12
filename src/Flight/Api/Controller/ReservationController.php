@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace Flight\Api\Controller;
 
+use Flight\Application\Flight\QueryObject\FlightsQO;
 use Flight\Application\Reservation\Cancel;
 use Flight\Application\Reservation\Pay;
+use Flight\Application\Reservation\QueryObject\ReservationsQO;
 use Flight\Application\Reservation\Reserve;
 use Lib\HttpFoundation\Fail;
 use Lib\HttpFoundation\Result;
 use Lib\HttpFoundation\Success;
+use Lib\QueryObject\Listing;
+use Lib\QueryObject\QueryExecutor;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,16 +26,19 @@ class ReservationController
     private MessageBusInterface $commandBus;
     private ValidatorInterface $validator;
     private LockFactory $lockFactory;
+    private QueryExecutor $queryExecutor;
 
     public function __construct(
         MessageBusInterface $commandBus,
         ValidatorInterface $validator,
-        LockFactory $lockFactory
+        LockFactory $lockFactory,
+        QueryExecutor $queryExecutor
     )
     {
         $this->commandBus = $commandBus;
         $this->validator = $validator;
         $this->lockFactory = $lockFactory;
+        $this->queryExecutor = $queryExecutor;
     }
 
     /**
@@ -89,5 +96,18 @@ class ReservationController
         $this->commandBus->dispatch($command);
 
         return Success::ok();
+    }
+
+    /**
+     * @Route("/{flightId}", methods={"GET"})
+     * @param string $flightId
+     *
+     * @return Result
+     */
+    public function reservations(string $flightId): Result
+    {
+        return new Success(
+            new Listing($this->queryExecutor->execute(new ReservationsQO($flightId)))
+        );
     }
 }

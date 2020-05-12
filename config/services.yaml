@@ -44,3 +44,7 @@ services:
     arguments:
       - '@messenger.transport.doctrine'
       - '@doctrine'
+
+  Lib\QueryObject\QueryExecutor:
+    arguments:
+      - '@doctrine.orm.entity_manager'

@@ -6,11 +6,13 @@ namespace Flight\Api\Controller;
 use Flight\Api\DTO\FlightEvent;
 use Flight\Application\Flight\Cancel;
 use Flight\Application\Flight\CloseSale;
+use Flight\Application\Flight\QueryObject\FlightsQO;
 use Flight\Application\Flight\Register;
-use http\Exception\InvalidArgumentException;
 use Lib\HttpFoundation\Fail;
 use Lib\HttpFoundation\Result;
 use Lib\HttpFoundation\Success;
+use Lib\QueryObject\Listing;
+use Lib\QueryObject\QueryExecutor;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -25,16 +27,19 @@ class FlightController
     private MessageBusInterface $commandBus;
     private ValidatorInterface $validator;
     private LockFactory $lockFactory;
+    private QueryExecutor $queryExecutor;
 
     public function __construct(
         MessageBusInterface $commandBus,
         ValidatorInterface $validator,
-        LockFactory $lockFactory
+        LockFactory $lockFactory,
+        QueryExecutor $queryExecutor
     )
     {
         $this->commandBus = $commandBus;
         $this->validator = $validator;
         $this->lockFactory = $lockFactory;
+        $this->queryExecutor = $queryExecutor;
     }
 
     /**
@@ -82,5 +87,17 @@ class FlightController
         $this->commandBus->dispatch($command);
 
         return Success::ok();
+    }
+
+    /**
+     * @Route("", methods={"GET"})
+     *
+     * @return Result
+     */
+    public function flights(): Result
+    {
+        return new Success(
+            new Listing($this->queryExecutor->execute(new FlightsQO()))
+        );
     }
 }
